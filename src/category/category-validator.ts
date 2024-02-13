@@ -6,21 +6,22 @@ export default [
         .withMessage("Category name is required")
         .isString()
         .withMessage("Category name should be a string"),
-    body("priceConfiguration is required")
+    body("priceConfiguration")
         .exists()
         .withMessage("Price configuration is required"),
     body("priceConfiguration.*.priceType")
         .exists()
-        .withMessage("price type is required")
+        .withMessage("Price type is required")
         .custom((value: "base" | "aditional") => {
-            const validkeys = ["base", "additional"];
-            if (!validkeys.includes(value)) {
+            const validKeys = ["base", "aditional"];
+            if (!validKeys.includes(value)) {
                 throw new Error(
-                    `${value} is invalid attribute for priceType field. Possible values are:[${validkeys.join(
-                        ",",
+                    `${value} is invalid attribute for priceType field. Possible values are: [${validKeys.join(
+                        ", ", // base, addtional
                     )}]`,
                 );
             }
+            return true;
         }),
-    body("attributes").exists().withMessage("Attributes fields is required"),
+    body("attributes").exists().withMessage("Attributes field is required"),
 ];
