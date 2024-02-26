@@ -6,7 +6,7 @@ import { asyncWrapper } from "../common/utils/ErrorWrapper";
 import logger from "../config/logger";
 import { CategoryController } from "./category-controller";
 import { CategoryService } from "./category-service";
-import categoryValidator from "./category-validator";
+import categoryValidator from "./create-category-validator";
 
 const categoryRouter = express.Router();
 
