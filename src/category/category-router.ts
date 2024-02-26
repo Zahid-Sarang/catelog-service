@@ -1,4 +1,5 @@
 import express from "express";
+import authenticate from "../common/middlewares/authenticate";
 import { asyncWrapper } from "../common/utils/ErrorWrapper";
 import logger from "../config/logger";
 import { CategoryController } from "./category-controller";
@@ -11,6 +12,7 @@ const categoryService = new CategoryService();
 const categoryController = new CategoryController(categoryService, logger);
 categoryRouter.post(
     "/",
+    authenticate,
     categoryValidator,
     asyncWrapper(categoryController.create),
 );
