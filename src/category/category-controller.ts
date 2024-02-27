@@ -9,10 +9,8 @@ export class CategoryController {
     constructor(
         private categoryService: CategoryService,
         private logger: Logger,
-    ) {
-        this.create = this.create.bind(this);
-    }
-    async create(req: Request, res: Response, next: NextFunction) {
+    ) {}
+    create = async (req: Request, res: Response, next: NextFunction) => {
         // validate request
         const requestValidationError = validationResult(req);
         if (!requestValidationError.isEmpty()) {
@@ -35,5 +33,10 @@ export class CategoryController {
         this.logger.info(`Created category`, { id: category._id });
 
         res.json({ id: category._id });
-    }
+    };
+
+    getList = async (req: Request, res: Response) => {
+        const categories = await this.categoryService.getAll();
+        res.json(categories);
+    };
 }

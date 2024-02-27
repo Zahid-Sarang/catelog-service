@@ -20,4 +20,6 @@ categoryRouter.post(
     asyncWrapper(categoryController.create),
 );
 
+categoryRouter.get("/", authenticate, asyncWrapper(categoryController.getList));
+
 export default categoryRouter;
