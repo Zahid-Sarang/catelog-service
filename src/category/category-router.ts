@@ -30,7 +30,14 @@ categoryRouter.get(
 categoryRouter.patch(
     "/:id",
     authenticate,
+    canAccess([Roles.ADMIN]),
     categoryValidator,
     asyncWrapper(categoryController.update),
+);
+categoryRouter.delete(
+    "/:id",
+    authenticate,
+    canAccess([Roles.ADMIN]),
+    asyncWrapper(categoryController.destroy),
 );
 export default categoryRouter;

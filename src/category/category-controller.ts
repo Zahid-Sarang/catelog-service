@@ -72,4 +72,14 @@ export class CategoryController {
 
         res.json(updatedCategory);
     };
+
+    destroy = async (req: Request, res: Response, next: NextFunction) => {
+        const { id: categoryId } = req.params;
+        if (!categoryId) {
+            return next(createHttpError(400, "Invalid Params!"));
+        }
+
+        await this.categoryService.deleteById(categoryId);
+        res.json("category deleted!");
+    };
 }
