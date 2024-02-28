@@ -21,5 +21,16 @@ categoryRouter.post(
 );
 
 categoryRouter.get("/", authenticate, asyncWrapper(categoryController.getList));
+categoryRouter.get(
+    "/:id",
+    authenticate,
+    asyncWrapper(categoryController.getOne),
+);
 
+categoryRouter.patch(
+    "/:id",
+    authenticate,
+    categoryValidator,
+    asyncWrapper(categoryController.update),
+);
 export default categoryRouter;
