@@ -8,15 +8,32 @@ import logger from "../config/logger";
 import createProductValidator from "./create-product-validator";
 import { ProductController } from "./product-controller";
 import { ProductService } from "./product-service";
+import { S3Storage } from "../common/services/S3Storage";
+import createHttpError from "http-errors";
 
 const productRouter = express.Router();
 const productService = new ProductService();
-const productController = new ProductController(productService, logger);
+const s3Storage = new S3Storage();
+const productController = new ProductController(
+    productService,
+    logger,
+    s3Storage,
+);
 productRouter.post(
     "/",
     authenticate,
     canAccess([Roles.ADMIN, Roles.MANAGER]),
-    fileUpload(),
+    fileUpload({
+        limits: { fileSize: 5000 * 1024 },
+        abortOnLimit: true,
+        limitHandler: (req, res, next) => {
+            const error = createHttpError(
+                400,
+                "File Size exceeds the maximum limit",
+            );
+            next(error);
+        },
+    }),
     createProductValidator,
     asyncWrapper(productController.create),
 );
