@@ -11,6 +11,6 @@ export interface Product {
     isPublish: boolean;
 }
 
-export interface CreateProductRequest extends Request {
+export interface ProductRequest extends Request {
     body: Product;
 }
