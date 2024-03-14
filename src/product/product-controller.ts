@@ -7,6 +7,8 @@ import { UploadedFile } from "express-fileupload";
 import { ProductService } from "./product-service";
 import { ProductRequest, Product } from "./product-types";
 import { FileStorage } from "../common/types/storage";
+import { AuthRequest } from "../common/types";
+import { Roles } from "../common/constants";
 
 export class ProductController {
     constructor(
@@ -58,15 +60,35 @@ export class ProductController {
     };
 
     update = async (req: ProductRequest, res: Response, next: NextFunction) => {
+        // validate input
         const result = validationResult(req);
         if (!result.isEmpty()) {
             return next(createHttpError(400, result.array()[0].msg as string));
         }
+
         const { productId } = req.params;
+
+        const product = await this.productService.getProduct(productId);
+
+        if (!product) {
+            return next(createHttpError(404, "Product not found"));
+        }
+        if ((req as AuthRequest).auth.role !== Roles.ADMIN) {
+            const tenant = (req as AuthRequest).auth.tenant;
+            if (product.tenantId !== tenant) {
+                return next(
+                    createHttpError(
+                        403,
+                        "You are not allowed to access this product",
+                    ),
+                );
+            }
+        }
+
         let imageName: string | undefined;
         let oldImage: string | undefined;
         if (req.files?.image) {
-            oldImage = await this.productService.getProductImage(productId);
+            oldImage = product.image;
             const image = req.files.image as UploadedFile;
             imageName = uuidv4();
 
@@ -74,7 +96,7 @@ export class ProductController {
                 fileName: imageName,
                 fileData: image.data.buffer,
             });
-            await this.storage.delete(oldImage!);
+            await this.storage.delete(oldImage);
         }
 
         const {
@@ -87,7 +109,7 @@ export class ProductController {
             isPublish,
         } = req.body;
 
-        const product = {
+        const Updateproduct = {
             name,
             description,
             priceConfiguration: JSON.parse(priceConfiguration),
@@ -100,7 +122,7 @@ export class ProductController {
 
         const updatedProduct = await this.productService.updateProduct(
             productId,
-            product,
+            Updateproduct,
         );
         res.json(updatedProduct);
     };
