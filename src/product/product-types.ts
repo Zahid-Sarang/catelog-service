@@ -1,4 +1,5 @@
 import { Request } from "express-jwt";
+import mongoose from "mongoose";
 
 export interface Product {
     name: string;
@@ -13,4 +14,10 @@ export interface Product {
 
 export interface ProductRequest extends Request {
     body: Product;
+}
+
+export interface Filter {
+    tenantId?: string;
+    categoryId?: mongoose.Types.ObjectId;
+    isPublish?: boolean;
 }
