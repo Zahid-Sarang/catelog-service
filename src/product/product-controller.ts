@@ -110,7 +110,7 @@ export class ProductController {
             isPublish,
         } = req.body;
 
-        const Updateproduct = {
+        const updateProductData = {
             name,
             description,
             priceConfiguration: JSON.parse(priceConfiguration),
@@ -123,7 +123,7 @@ export class ProductController {
 
         const updatedProduct = await this.productService.updateProduct(
             productId,
-            Updateproduct,
+            updateProductData,
         );
         res.json(updatedProduct);
     };
