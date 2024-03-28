@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { validationResult } from "express-validator";
+import mongoose from "mongoose";
 import createHttpError from "http-errors";
 import { Logger } from "winston";
 import { v4 as uuidv4 } from "uuid";
@@ -9,7 +10,6 @@ import { ProductRequest, Product, Filter } from "./product-types";
 import { FileStorage } from "../common/types/storage";
 import { AuthRequest } from "../common/types";
 import { Roles } from "../common/constants";
-import mongoose from "mongoose";
 
 export class ProductController {
     constructor(
@@ -151,9 +151,11 @@ export class ProductController {
             q as string,
             filters,
             {
-                page: req.query.page ? parseInt(req.query.page as string) : 1,
-                limit: req.query.limit
-                    ? parseInt(req.query.limit as string)
+                currentPage: req.query.currentPage
+                    ? parseInt(req.query.currentPage as string)
+                    : 1,
+                perPage: req.query.perPage
+                    ? parseInt(req.query.perPage as string)
                     : 10,
             },
         );

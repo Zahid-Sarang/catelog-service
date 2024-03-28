@@ -24,6 +24,6 @@ export interface Filter {
 }
 
 export interface PaginateQuery {
-    page: number;
-    limit: number;
+    currentPage: number;
+    perPage: number;
 }

@@ -3,6 +3,7 @@ import express, { Request, Response } from "express";
 import categoryRouter from "./category/category-router";
 import { globalErrorHandler } from "./common/middlewares/globalErrorHandler";
 import productRouter from "./product/product-router";
+import toppinRouter from "./topping/topping-router";
 
 const app = express();
 app.use(express.json());
@@ -13,6 +14,7 @@ app.get("/", (req: Request, res: Response) => {
 
 app.use("/categories", categoryRouter);
 app.use("/products", productRouter);
+app.use("/toppings", toppinRouter);
 
 app.use(globalErrorHandler);
 
