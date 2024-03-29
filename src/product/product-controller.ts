@@ -125,6 +125,9 @@ export class ProductController {
             productId,
             updateProductData,
         );
+        this.logger.info("Product has been updated", {
+            id: updatedProduct._id,
+        });
         res.json(updatedProduct);
     };
 
@@ -166,6 +169,7 @@ export class ProductController {
                 };
             },
         );
+        this.logger.info("All product have been fetched");
         res.json({
             data: finalProducts,
             total: products.total,

@@ -8,11 +8,13 @@ import { FileStorage } from "../common/types/storage";
 import { Filter, Toppings, ToppingsRequest } from "./topping-types";
 import { Roles } from "../common/constants";
 import { AuthRequest } from "../common/types";
+import { Logger } from "winston";
 
 export class ToppingController {
     constructor(
         private toppingService: ToppingService,
         private storage: FileStorage,
+        private logger: Logger,
     ) {}
     create = async (
         req: ToppingsRequest,
@@ -43,6 +45,7 @@ export class ToppingController {
 
         // store topping in database
         const newTopping = await this.toppingService.createTopping(topping);
+        this.logger.info("Topping has been created", { id: newTopping._id });
         res.json({ id: newTopping._id });
     };
 
@@ -99,6 +102,10 @@ export class ToppingController {
             updateToppingData,
         );
 
+        this.logger.info("Topping has been updated", {
+            id: updateTopping!._id,
+        });
+
         res.json(updateTopping);
     };
 
@@ -112,6 +119,7 @@ export class ToppingController {
         if (!topping) {
             return next(createHttpError(400, "Topping not found!"));
         }
+        this.logger.info("Topping has been fetched", { id: topping._id });
 
         res.json(topping);
     };
@@ -144,6 +152,8 @@ export class ToppingController {
                 };
             },
         );
+
+        this.logger.info("All toping have been fetched");
 
         res.json({
             data: finalToppings,
