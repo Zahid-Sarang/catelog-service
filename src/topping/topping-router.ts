@@ -48,4 +48,7 @@ toppinRouter.put(
     asyncWrapper(toppingController.update),
 );
 
+toppinRouter.get("/:toppingId", asyncWrapper(toppingController.getOne));
+toppinRouter.get("/", asyncWrapper(toppingController.getList));
+
 export default toppinRouter;

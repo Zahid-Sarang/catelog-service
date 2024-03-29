@@ -5,7 +5,7 @@ import createHttpError from "http-errors";
 import { validationResult } from "express-validator";
 import { ToppingService } from "./topping-service";
 import { FileStorage } from "../common/types/storage";
-import { ToppingsRequest } from "./topping-types";
+import { Filter, Toppings, ToppingsRequest } from "./topping-types";
 import { Roles } from "../common/constants";
 import { AuthRequest } from "../common/types";
 
@@ -100,5 +100,56 @@ export class ToppingController {
         );
 
         res.json(updateTopping);
+    };
+
+    getOne = async (req: Request, res: Response, next: NextFunction) => {
+        const { toppingId } = req.params;
+
+        if (!toppingId) {
+            return next(createHttpError(400, "Invalid url params!"));
+        }
+        const topping = await this.toppingService.getTopping(toppingId);
+        if (!topping) {
+            return next(createHttpError(400, "Topping not found!"));
+        }
+
+        res.json(topping);
+    };
+
+    getList = async (req: Request, res: Response) => {
+        const { q, tenantId, isPublish } = req.query;
+        const filters: Filter = {};
+
+        if (isPublish === "true") {
+            filters.isPublish = true;
+        }
+        if (tenantId) filters.tenantId = tenantId as string;
+
+        const toppings = await this.toppingService.getToppings(
+            q as string,
+            filters,
+            {
+                page: req.query.page ? parseInt(req.query.page as string) : 1,
+                limit: req.query.limit
+                    ? parseInt(req.query.limit as string)
+                    : 10,
+            },
+        );
+
+        const finalToppings = (toppings.data as Toppings[]).map(
+            (topping: Toppings) => {
+                return {
+                    ...topping,
+                    image: this.storage.getObjectUri(topping.image),
+                };
+            },
+        );
+
+        res.json({
+            data: finalToppings,
+            total: toppings.totalDocs,
+            perPage: toppings.perPage,
+            currentPage: toppings.currentPage,
+        });
     };
 }
