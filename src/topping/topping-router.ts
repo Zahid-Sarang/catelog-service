@@ -55,5 +55,11 @@ toppinRouter.put(
 
 toppinRouter.get("/:toppingId", asyncWrapper(toppingController.getOne));
 toppinRouter.get("/", asyncWrapper(toppingController.getList));
+toppinRouter.delete(
+    "/:toppingId",
+    authenticate,
+    canAccess([Roles.ADMIN, Roles.MANAGER]),
+    asyncWrapper(toppingController.destroy),
+);
 
 export default toppinRouter;

@@ -47,4 +47,8 @@ export class ToppingService {
             },
         );
     }
+
+    async deleteById(toppingId: string) {
+        return await toppingModel.deleteOne({ _id: toppingId });
+    }
 }

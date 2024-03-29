@@ -162,4 +162,22 @@ export class ToppingController {
             currentPage: toppings.currentPage,
         });
     };
+
+    destroy = async (req: Request, res: Response, next: NextFunction) => {
+        const { toppingId } = req.params;
+
+        if (!toppingId) {
+            return next(createHttpError(400, "Invalid Params!"));
+        }
+        const topping = await this.toppingService.getTopping(toppingId);
+        if (!topping) {
+            return next(createHttpError(400, "Topping not found"));
+        }
+
+        await this.storage.delete(topping.image);
+
+        await this.toppingService.deleteById(toppingId);
+        this.logger.info("Topping deleted!", { id: toppingId });
+        res.json("Topping deleted!");
+    };
 }
