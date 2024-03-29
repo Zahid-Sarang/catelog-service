@@ -177,4 +177,22 @@ export class ProductController {
             currentPage: products.currentPage,
         });
     };
+
+    destroy = async (req: Request, res: Response, next: NextFunction) => {
+        const { productId } = req.params;
+
+        if (!productId) {
+            return next(createHttpError(400, "Invalid Params!"));
+        }
+        const product = await this.productService.getProduct(productId);
+        if (!product) {
+            return next(createHttpError(400, "Topping not found"));
+        }
+
+        await this.storage.delete(product.image);
+
+        await this.productService.deleteById(productId);
+        this.logger.info("Product deleted!", { id: productId });
+        res.json("Product deleted!");
+    };
 }
