@@ -20,7 +20,7 @@ categoryRouter.post(
     asyncWrapper(categoryController.create),
 );
 
-categoryRouter.get("/", authenticate, asyncWrapper(categoryController.getList));
+categoryRouter.get("/", asyncWrapper(categoryController.getList));
 categoryRouter.get(
     "/:id",
     authenticate,

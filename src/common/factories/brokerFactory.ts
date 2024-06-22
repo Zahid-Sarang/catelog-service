@@ -1,0 +1,16 @@
+import config from "config";
+import { KafkaProducerBroker } from "../../config/kafka";
+import { MessageProducerBroker } from "../types/broker";
+
+let messageProducer: MessageProducerBroker | null = null;
+
+export const createMessageProducerBroker = (): MessageProducerBroker => {
+    // making singleton
+    if (!messageProducer) {
+        messageProducer = new KafkaProducerBroker("catelog-service", [
+            config.get("kafka.broker"),
+        ]);
+    }
+
+    return messageProducer;
+};

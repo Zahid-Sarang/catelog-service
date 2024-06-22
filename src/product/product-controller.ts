@@ -10,12 +10,14 @@ import { ProductRequest, Product, Filter } from "./product-types";
 import { FileStorage } from "../common/types/storage";
 import { AuthRequest } from "../common/types";
 import { Roles } from "../common/constants";
+import { MessageProducerBroker } from "../common/types/broker";
 
 export class ProductController {
     constructor(
         private productService: ProductService,
         private logger: Logger,
         private storage: FileStorage,
+        private broker: MessageProducerBroker,
     ) {}
     create = async (req: ProductRequest, res: Response, next: NextFunction) => {
         const result = validationResult(req);
@@ -56,6 +58,16 @@ export class ProductController {
             product as unknown as Product,
         );
         this.logger.info(`Created Product`, { id: newProduct._id });
+
+        // Send product to kafka.
+        // todo: move topic name to config
+        await this.broker.sendMessage(
+            "product",
+            JSON.stringify({
+                _id: newProduct._id,
+                priceConfiguration: newProduct.priceConfiguration,
+            }),
+        );
 
         res.json({ id: newProduct._id });
     };
@@ -125,6 +137,17 @@ export class ProductController {
             productId,
             updateProductData,
         );
+
+        // Send product to kafka.
+        // todo: move topic name to config
+        await this.broker.sendMessage(
+            "product",
+            JSON.stringify({
+                _id: updatedProduct._id,
+                priceConfiguration: updatedProduct.priceConfiguration,
+            }),
+        );
+
         this.logger.info("Product has been updated", {
             id: updatedProduct._id,
         });

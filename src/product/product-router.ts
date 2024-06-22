@@ -11,14 +11,17 @@ import { ProductService } from "./product-service";
 import { S3Storage } from "../common/services/S3Storage";
 import createHttpError from "http-errors";
 import updateProductValidator from "./update-product-validator";
+import { createMessageProducerBroker } from "../common/factories/brokerFactory";
 
 const productRouter = express.Router();
 const productService = new ProductService();
 const s3Storage = new S3Storage();
+const broker = createMessageProducerBroker();
 const productController = new ProductController(
     productService,
     logger,
     s3Storage,
+    broker,
 );
 productRouter.post(
     "/",
