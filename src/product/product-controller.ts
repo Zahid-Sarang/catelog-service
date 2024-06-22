@@ -12,6 +12,7 @@ import { FileStorage } from "../common/types/storage";
 import { AuthRequest } from "../common/types";
 import { Roles } from "../common/constants";
 import { MessageProducerBroker } from "../common/types/broker";
+import { mapToObject } from "../utils";
 
 export class ProductController {
     constructor(
@@ -66,7 +67,12 @@ export class ProductController {
             config.get("topic.productTopic"),
             JSON.stringify({
                 _id: newProduct._id,
-                priceConfiguration: newProduct.priceConfiguration,
+                priceConfiguration: mapToObject(
+                    newProduct.priceConfiguration as unknown as Map<
+                        string,
+                        unknown
+                    >,
+                ),
             }),
         );
 
@@ -144,7 +150,12 @@ export class ProductController {
             config.get("topic.productTopic"),
             JSON.stringify({
                 _id: updatedProduct._id,
-                priceConfiguration: updatedProduct.priceConfiguration,
+                priceConfiguration: mapToObject(
+                    updatedProduct.priceConfiguration as unknown as Map<
+                        string,
+                        unknown
+                    >,
+                ),
             }),
         );
 
