@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { validationResult } from "express-validator";
+import config from "config";
 import mongoose from "mongoose";
 import createHttpError from "http-errors";
 import { Logger } from "winston";
@@ -60,9 +61,9 @@ export class ProductController {
         this.logger.info(`Created Product`, { id: newProduct._id });
 
         // Send product to kafka.
-        // todo: move topic name to config
+
         await this.broker.sendMessage(
-            "product",
+            config.get("topic.productTopic"),
             JSON.stringify({
                 _id: newProduct._id,
                 priceConfiguration: newProduct.priceConfiguration,
@@ -139,9 +140,8 @@ export class ProductController {
         );
 
         // Send product to kafka.
-        // todo: move topic name to config
         await this.broker.sendMessage(
-            "product",
+            config.get("topic.productTopic"),
             JSON.stringify({
                 _id: updatedProduct._id,
                 priceConfiguration: updatedProduct.priceConfiguration,

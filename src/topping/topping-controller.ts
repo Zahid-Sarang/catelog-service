@@ -9,12 +9,15 @@ import { Filter, Toppings, ToppingsRequest } from "./topping-types";
 import { Roles } from "../common/constants";
 import { AuthRequest } from "../common/types";
 import { Logger } from "winston";
+import { MessageProducerBroker } from "../common/types/broker";
+import config from "config";
 
 export class ToppingController {
     constructor(
         private toppingService: ToppingService,
         private storage: FileStorage,
         private logger: Logger,
+        private broker: MessageProducerBroker,
     ) {}
     create = async (
         req: ToppingsRequest,
@@ -45,7 +48,19 @@ export class ToppingController {
 
         // store topping in database
         const newTopping = await this.toppingService.createTopping(topping);
-        this.logger.info("Topping has been created", { id: newTopping._id });
+        this.logger.info("Topping has been created", {
+            id: newTopping._id,
+        });
+
+        // Send topping to kafka.
+        await this.broker.sendMessage(
+            config.get("topic.toppingTopic"),
+            JSON.stringify({
+                _id: newTopping._id,
+                price: newTopping.price,
+                tenantId: newTopping.tenantId,
+            }),
+        );
         res.json({ id: newTopping._id });
     };
 
@@ -105,6 +120,16 @@ export class ToppingController {
         this.logger.info("Topping has been updated", {
             id: updateTopping!._id,
         });
+
+        // Send topping to kafka.
+        await this.broker.sendMessage(
+            config.get("topic.toppingTopic"),
+            JSON.stringify({
+                _id: updateTopping!._id,
+                price: updateTopping!.price,
+                tenantId: updateTopping!.tenantId,
+            }),
+        );
 
         res.json(updateTopping);
     };
