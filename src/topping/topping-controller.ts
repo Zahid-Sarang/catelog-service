@@ -182,7 +182,7 @@ export class ToppingController {
 
         res.json({
             data: finalToppings,
-            total: toppings.totalDocs,
+            total: toppings.total,
             perPage: toppings.perPage,
             currentPage: toppings.currentPage,
         });
