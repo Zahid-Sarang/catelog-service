@@ -29,6 +29,7 @@ export class ToppingService {
             {
                 $match: matchQuery,
             },
+            { $sort: { createdAt: -1 } },
         ]);
         return toppingModel.aggregatePaginate(aggregate, {
             ...paginatedQuery,
