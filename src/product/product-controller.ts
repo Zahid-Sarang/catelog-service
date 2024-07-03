@@ -7,7 +7,12 @@ import { Logger } from "winston";
 import { v4 as uuidv4 } from "uuid";
 import { UploadedFile } from "express-fileupload";
 import { ProductService } from "./product-service";
-import { ProductRequest, Product, Filter } from "./product-types";
+import {
+    ProductRequest,
+    Product,
+    Filter,
+    ProductEvents,
+} from "./product-types";
 import { FileStorage } from "../common/types/storage";
 import { AuthRequest } from "../common/types";
 import { Roles } from "../common/constants";
@@ -66,13 +71,16 @@ export class ProductController {
         await this.broker.sendMessage(
             config.get("topic.productTopic"),
             JSON.stringify({
-                _id: newProduct._id,
-                priceConfiguration: mapToObject(
-                    newProduct.priceConfiguration as unknown as Map<
-                        string,
-                        unknown
-                    >,
-                ),
+                event_type: ProductEvents.PRODUCT_CREATE,
+                data: {
+                    _id: newProduct._id,
+                    priceConfiguration: mapToObject(
+                        newProduct.priceConfiguration as unknown as Map<
+                            string,
+                            unknown
+                        >,
+                    ),
+                },
             }),
         );
 
@@ -149,13 +157,16 @@ export class ProductController {
         await this.broker.sendMessage(
             config.get("topic.productTopic"),
             JSON.stringify({
-                _id: updatedProduct._id,
-                priceConfiguration: mapToObject(
-                    updatedProduct.priceConfiguration as unknown as Map<
-                        string,
-                        unknown
-                    >,
-                ),
+                event_type: ProductEvents.PRODUCT_UPDATE,
+                data: {
+                    _id: updatedProduct._id,
+                    priceConfiguration: mapToObject(
+                        updatedProduct.priceConfiguration as unknown as Map<
+                            string,
+                            unknown
+                        >,
+                    ),
+                },
             }),
         );
 
@@ -229,6 +240,18 @@ export class ProductController {
 
         await this.productService.deleteById(productId);
         this.logger.info("Product deleted!", { id: productId });
+
+        // Send product Id to kafka
+        await this.broker.sendMessage(
+            config.get("topic.productTopic"),
+            JSON.stringify({
+                event_type: ProductEvents.PRODUCT_DELETE,
+                data: {
+                    _id: product._id,
+                },
+            }),
+        );
+
         res.json("Product deleted!");
     };
 }
