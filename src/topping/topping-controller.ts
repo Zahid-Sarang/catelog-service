@@ -5,7 +5,12 @@ import createHttpError from "http-errors";
 import { validationResult } from "express-validator";
 import { ToppingService } from "./topping-service";
 import { FileStorage } from "../common/types/storage";
-import { Filter, Toppings, ToppingsRequest } from "./topping-types";
+import {
+    Filter,
+    ToppingEvents,
+    Toppings,
+    ToppingsRequest,
+} from "./topping-types";
 import { Roles } from "../common/constants";
 import { AuthRequest } from "../common/types";
 import { Logger } from "winston";
@@ -56,9 +61,12 @@ export class ToppingController {
         await this.broker.sendMessage(
             config.get("topic.toppingTopic"),
             JSON.stringify({
-                _id: newTopping._id,
-                price: newTopping.price,
-                tenantId: newTopping.tenantId,
+                event_type: ToppingEvents.TOPPING_CREATE,
+                data: {
+                    _id: newTopping._id,
+                    price: newTopping.price,
+                    tenantId: newTopping.tenantId,
+                },
             }),
         );
         res.json({ id: newTopping._id });
@@ -125,9 +133,12 @@ export class ToppingController {
         await this.broker.sendMessage(
             config.get("topic.toppingTopic"),
             JSON.stringify({
-                _id: updateTopping!._id,
-                price: updateTopping!.price,
-                tenantId: updateTopping!.tenantId,
+                event_type: ToppingEvents.TOPPING_UPDATE,
+                data: {
+                    _id: updateTopping!._id,
+                    price: updateTopping!.price,
+                    tenantId: updateTopping!.tenantId,
+                },
             }),
         );
 
@@ -205,6 +216,18 @@ export class ToppingController {
 
         await this.toppingService.deleteById(toppingId);
         this.logger.info("Topping deleted!", { id: toppingId });
+
+        // Send topping Id to kafka.
+        await this.broker.sendMessage(
+            config.get("topic.toppingTopic"),
+            JSON.stringify({
+                event_type: ToppingEvents.TOPPING_DELETE,
+                data: {
+                    _id: topping._id,
+                },
+            }),
+        );
+
         res.json("Topping deleted!");
     };
 }
