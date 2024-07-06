@@ -10,6 +10,8 @@ export class CategoryController {
         private categoryService: CategoryService,
         private logger: Logger,
     ) {}
+
+    // Create Category
     create = async (req: Request, res: Response, next: NextFunction) => {
         // validate request
         const requestValidationError = validationResult(req);
@@ -35,11 +37,13 @@ export class CategoryController {
         res.status(201).json({ id: category._id });
     };
 
+    // Get All Category
     getList = async (req: Request, res: Response) => {
         const categories = await this.categoryService.getAll();
         res.json(categories);
     };
 
+    // Get single Category
     getOne = async (req: Request, res: Response, next: NextFunction) => {
         const { id: categoryId } = req.params;
         if (!categoryId) {
@@ -50,6 +54,7 @@ export class CategoryController {
         res.json(category);
     };
 
+    // Update Category
     update = async (req: Request, res: Response, next: NextFunction) => {
         const requestValidationError = validationResult(req);
         if (!requestValidationError.isEmpty()) {
@@ -73,6 +78,7 @@ export class CategoryController {
         res.json(updatedCategory);
     };
 
+    // Delete Category
     destroy = async (req: Request, res: Response, next: NextFunction) => {
         const { id: categoryId } = req.params;
         if (!categoryId) {
